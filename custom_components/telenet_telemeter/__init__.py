@@ -53,9 +53,17 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
-    await hass.config_entries.async_unload_platforms(config_entry, "sensor")
+    """Unload the component."""
+    # Cleanup resources
+    # await hass.config_entries.async_remove(config_entry)
+    hass.config_entries.async_forward_entry_unload(config_entry, "sensor")
+    hass.data[DOMAIN].pop(config_entry.entry_id)
     return True
 
+async def async_reload(hass: HomeAssistant, config_entry: ConfigEntry):
+    await async_unload_entry(config_entry)
+    await async_setup_entry(config_entry)
+    return True
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set up component as config entry."""
